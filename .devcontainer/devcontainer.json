@@ -1,0 +1,13 @@
+// The Dev Container format allows you to configure your environment.
+// See https://aka.ms/devcontainer.json for more information.
+{
+	"name": "Nuxt",
+	"image": "mcr.microsoft.com/devcontainers/javascript-node:20",
+	"forwardPorts": [3000],
+	"portsAttributes": {
+		"3000": {
+			"label": "Nuxt Dev Server",
+			"onAutoForward": "notify"
+		}
+	}
+}
