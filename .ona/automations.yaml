@@ -1,0 +1,32 @@
+tasks:
+  installDeps:
+    name: Install dependencies
+    description: Install npm dependencies (runs nuxt prepare via postinstall).
+    command: |
+      npm install
+    triggeredBy:
+      - manual
+      - postDevcontainerStart
+      - prebuild
+
+  build:
+    name: Build
+    description: Build the Nuxt application for production.
+    command: |
+      npm run build
+    triggeredBy:
+      - manual
+    dependsOn:
+      - installDeps
+
+services:
+  dev:
+    name: Nuxt Dev Server
+    description: Run the Nuxt development server on port 3000.
+    commands:
+      start: |
+        npm run dev
+      ready: |
+        curl -sf http://localhost:3000 > /dev/null
+    triggeredBy:
+      - postDevcontainerStart
