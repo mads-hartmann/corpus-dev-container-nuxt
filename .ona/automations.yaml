@@ -1,0 +1,35 @@
+tasks:
+  installDeps:
+    name: Install dependencies
+    description: Install npm dependencies for the Nuxt project.
+    command: |
+      npm install
+    triggeredBy:
+      - manual
+      - postDevcontainerStart
+      - prebuild
+
+  build:
+    name: Build
+    description: Build the Nuxt application for production.
+    command: |
+      npm run build
+    triggeredBy:
+      - manual
+    dependsOn:
+      - installDeps
+
+services:
+  dev-server:
+    name: Nuxt Dev Server
+    description: Run the Nuxt development server.
+    triggeredBy:
+      - manual
+      - postEnvironmentStart
+    commands:
+      start: |
+        ona environment port open 3000 --dont-wait --admission creator_only --name "Nuxt Dev Server"
+        export NUXT_ALLOWED_HOST=$(ona environment port get 3000 -f URL | cut -c 9-)
+        npm run dev -- --host 0.0.0.0 --port 3000
+      ready: |
+        curl -sf http://localhost:3000 > /dev/null
