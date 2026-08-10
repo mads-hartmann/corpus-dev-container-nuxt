@@ -1,0 +1,30 @@
+tasks:
+  install-dependencies:
+    name: Install dependencies
+    command: npm ci
+    triggeredBy:
+      - manual
+      - postDevcontainerStart
+      - prebuild
+
+  build:
+    name: Build application
+    command: npm run build
+    dependsOn:
+      - install-dependencies
+    triggeredBy:
+      - manual
+
+services:
+  development-server:
+    name: Development server
+    commands:
+      start: |
+        npm run dev -- --host 0.0.0.0 &
+        server_pid=$!
+        ona environment port open 3000 --admission creator_only --name "Development server"
+        wait "$server_pid"
+      ready: curl --fail --silent http://localhost:3000 > /dev/null
+    triggeredBy:
+      - manual
+      - postEnvironmentStart
