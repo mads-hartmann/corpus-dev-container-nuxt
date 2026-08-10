@@ -1,0 +1,37 @@
+services:
+  nuxt-dev:
+    name: Nuxt dev server
+    description: Runs the Nuxt development server on port 3000
+    triggeredBy:
+      - manual
+      - postEnvironmentStart
+    readinessTimeout: 600s
+    commands:
+      start: |
+        until test -x node_modules/.bin/nuxt; do
+          echo "Waiting for dependency installation..."
+          sleep 1
+        done
+        ona environment port open 3000 --admission creator_only --name "Nuxt dev server"
+        export __VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS="$(ona environment port get 3000 -f URL | cut -c 9-)"
+        npm run dev -- --host 0.0.0.0
+      ready: curl -sf http://localhost:3000
+
+tasks:
+  install-dependencies:
+    name: Install dependencies
+    description: Installs npm dependencies without rewriting the stale lockfile
+    triggeredBy:
+      - manual
+      - postDevcontainerStart
+      - prebuild
+    command: npm install --package-lock=false
+
+  build:
+    name: Build application
+    description: Creates the production Nuxt build
+    triggeredBy:
+      - manual
+    dependsOn:
+      - install-dependencies
+    command: npm run build
