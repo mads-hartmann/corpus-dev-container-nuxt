@@ -1,0 +1,32 @@
+services:
+  nuxt:
+    name: Nuxt development server
+    description: Run the Nuxt development server.
+    triggeredBy:
+      - manual
+      - postEnvironmentStart
+    commands:
+      start: |
+        ona environment port open 3000 --admission creator_only --name "Nuxt development server"
+        export ONA_EXPOSED_HOST="$(ona environment port get 3000 -f URL | cut -c 9-)"
+        __VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS="$ONA_EXPOSED_HOST" npm run dev -- --host 0.0.0.0
+      ready: curl -fsS http://localhost:3000
+
+tasks:
+  install-dependencies:
+    name: Install dependencies
+    description: Install the locked npm dependencies.
+    triggeredBy:
+      - manual
+      - postDevcontainerStart
+      - prebuild
+    command: npm ci
+
+  build:
+    name: Build Nuxt application
+    description: Build the Nuxt application for production.
+    triggeredBy:
+      - manual
+    dependsOn:
+      - install-dependencies
+    command: npm run build
